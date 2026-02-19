@@ -13,12 +13,8 @@ const birdSkins = [
   "assets/Flappy-Bird.png",
   "assets/Flappy-Bird2.png",
   "assets/Flappy-Bird3.png",
-  // "assets/Flappy-Bird4.png",
   "assets/g4-.png",
   "assets/g5.png",
-  // "assets/g6.png",
-  // "assets/g7.png",
-  // "assets/g8.png",
 ];
 
 let currentSkinIndex = 0;
@@ -39,7 +35,7 @@ bgm.volume = 0.3;
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  bird.x = canvas.width * 0.2; // Posisi burung relatif terhadap lebar layar
+  bird.x = canvas.width * 0.2;
 }
 window.addEventListener("resize", resizeCanvas);
 
@@ -49,8 +45,13 @@ let gameOver = false;
 let score = 0;
 let coinCount = 0;
 let frame = 0;
+let isNewBest = false;
 let totalKoinSaved = localStorage.getItem("totalKoin")
   ? parseInt(localStorage.getItem("totalKoin"))
+  : 0;
+
+let bestScore = localStorage.getItem("bestScore")
+  ? parseInt(localStorage.getItem("bestScore"))
   : 0;
 
 /* BIRD */
@@ -72,7 +73,6 @@ const pipeGap = 160;
 const pipeSpeed = 2.5;
 const coinSize = 26;
 
-// Tampilkan koin awal
 document.getElementById("totalKoinMenu").innerText = totalKoinSaved;
 
 /* NAVIGATION & SOUNDS */
@@ -129,7 +129,6 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "Space") control();
 });
 canvas.addEventListener("click", (e) => {
-  // Mencegah klik tembus saat menu terbuka
   if (gameActive && !gameOver) control();
 });
 document.getElementById("jumpBtnMobile").addEventListener("touchstart", (e) => {
@@ -140,10 +139,8 @@ document.getElementById("jumpBtnMobile").addEventListener("touchstart", (e) => {
 /* SPAWN LOGIC */
 function spawnCoin(pipeX, gapTop, gapBottom) {
   if (Math.random() > 0.6) return;
-
   let centerGap = gapTop + (gapBottom - gapTop) / 2;
   let coinY = centerGap - coinSize / 2;
-
   coins.push({
     x: pipeX + pipeWidth / 2 - coinSize / 2,
     y: coinY,
@@ -157,7 +154,6 @@ function createPipe() {
   let minH = 50;
   let maxH = canvas.height - pipeGap - minH;
   let topH = Math.floor(Math.random() * (maxH - minH) + minH);
-
   pipes.push({
     x: canvas.width,
     top: topH,
@@ -183,6 +179,12 @@ function update() {
       score++;
       pipe.passed = true;
       soundScore.play();
+
+      if (score > bestScore) {
+        bestScore = score;
+        isNewBest = true;
+        localStorage.setItem("bestScore", bestScore);
+      }
     }
     if (
       bird.x < pipe.x + pipeWidth &&
@@ -226,13 +228,11 @@ function draw() {
   ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
   pipes.forEach((pipe) => {
-    // Atas
     ctx.save();
     ctx.translate(pipe.x + pipeWidth / 2, pipe.top / 2);
     ctx.scale(1, -1);
     ctx.drawImage(pipeImg, -pipeWidth / 2, -pipe.top / 2, pipeWidth, pipe.top);
     ctx.restore();
-    // Bawah
     ctx.drawImage(
       pipeImg,
       pipe.x,
@@ -253,14 +253,39 @@ function draw() {
   ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
 
   if (gameActive) {
-    ctx.fillStyle = "#e3c505";
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = 6;
-    ctx.font = "18px 'Press Start 2P'";
-    ctx.strokeText("Score: " + score, 20, 50);
-    ctx.fillText("Score: " + score, 20, 50);
-    ctx.strokeText("Coin: " + coinCount, 20, 90);
-    ctx.fillText("Coin: " + coinCount, 20, 90);
+    ctx.lineWidth = 4; // Sedikit lebih tipis untuk mobile agar bersih
+
+    // --- SKOR TERBAIK & KOIN (Kiri Atas - Ukuran Kecil) ---
+    ctx.font = "10px 'Press Start 2P'"; // Diperkecil agar tidak menabrak tengah
+    ctx.fillStyle = "#e3c505";
+    ctx.textAlign = "left";
+    ctx.strokeText("BEST SCORE:" + bestScore, 15, 30);
+    ctx.fillText("BEST SCORE:" + bestScore, 15, 30);
+
+    ctx.fillStyle = "#fff";
+    ctx.strokeText("COIN: " + coinCount, 15, 50);
+    ctx.fillText("COIN: " + coinCount, 15, 50);
+
+    // --- SKOR SEKARANG (Tengah Atas - Responsif) ---
+    // Jika skor masih kecil, gunakan font besar, jika ribuan otomatis mengecil
+    let fontSize = score > 99 ? "15px" : "25px";
+    ctx.font = fontSize + " 'Press Start 2P'";
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    // Posisi Y diturunkan ke 70 agar ada jarak dari Best Score
+    ctx.strokeText(score, canvas.width / 2, 70);
+    ctx.fillText(score, canvas.width / 2, 70);
+
+    // --- NOTIFIKASI NEW BEST (Di bawah skor utama) ---
+    if (isNewBest) {
+      ctx.font = "10px 'Press Start 2P'";
+      ctx.fillStyle = "#00ff00";
+      ctx.strokeText("NEW BEST SCORE!", canvas.width / 2, 100);
+      ctx.fillText("NEW BEST SCORE!", canvas.width / 2, 100);
+    }
+
+    ctx.textAlign = "left";
   }
 }
 
@@ -283,6 +308,7 @@ function resetGameStats() {
   score = 0;
   coinCount = 0;
   frame = 0;
+  isNewBest = false;
 }
 
 document.getElementById("retryBtn").addEventListener("click", () => {
