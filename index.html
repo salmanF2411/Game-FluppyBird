@@ -15,7 +15,7 @@
   </head>
   <body>
     <div class="game-container">
-      <canvas id="gameCanvas" width="400" height="600"></canvas>
+      <canvas id="gameCanvas"></canvas>
 
       <div id="mainMenu" class="overlay">
         <div id="menuCoinDisplay">KOIN: <span id="totalKoinMenu">0</span></div>
@@ -47,24 +47,18 @@
             id="opt2"
           />
           <img
-            src="assets/Flappy-Bird4.png"
-            onclick="selectBird(3)"
-            class="char-opt"
-            id="opt3"
-          />
-          <img
             src="assets/g4-.png"
-            onclick="selectBird(4)"
+            onclick="selectBird(3)"
             class="char-opt"
             id="opt4"
           />
           <img
             src="assets/g5.png"
-            onclick="selectBird(5)"
+            onclick="selectBird(4)"
             class="char-opt"
             id="opt5"
           />
-          <img
+          <!-- <img
             src="assets/g6.png"
             onclick="selectBird(6)"
             class="char-opt"
@@ -81,7 +75,7 @@
             onclick="selectBird(8)"
             class="char-opt"
             id="opt8"
-          />
+          /> -->
         </div>
         <button onclick="showScreen('mainMenu')">KEMBALI</button>
       </div>
