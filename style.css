@@ -18,6 +18,8 @@ body {
 
   overflow: hidden;
   touch-action: manipulation;
+  /* Menghapus highlight biru default saat tap di mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .game-container {
@@ -132,24 +134,29 @@ button {
   transition: all 0.15s ease;
 
   animation: fadeSlideUp 0.5s ease;
+
+  /* Mencegah zoom otomatis pada input/button di iOS */
+  touch-action: manipulation;
 }
 
-/* Hover */
-button:hover {
-  transform: translateY(-3px);
+/* Hover (Desktop) */
+@media (hover: hover) {
+  button:hover {
+    transform: translateY(-3px);
 
-  box-shadow:
-    0 9px 0 #cc9400,
-    0 14px 22px rgba(0, 0, 0, 0.35);
+    box-shadow:
+      0 9px 0 #cc9400,
+      0 14px 22px rgba(0, 0, 0, 0.35);
+  }
 }
 
-/* Click press effect */
+/* Click press effect (Desktop & Mobile) */
 button:active {
-  transform: translateY(3px);
+  transform: translateY(3px) !important;
 
   box-shadow:
     0 3px 0 #cc9400,
-    0 6px 12px rgba(0, 0, 0, 0.25);
+    0 6px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* =========================
@@ -185,6 +192,11 @@ button:active {
 
 .char-opt:hover {
   transform: scale(1.15);
+}
+
+/* Animasi klik untuk karakter di mobile */
+.char-opt:active {
+  transform: scale(0.95);
 }
 
 .char-opt.selected {
@@ -228,6 +240,14 @@ button:active {
 @media (max-width: 768px) {
   #jumpBtnMobile {
     display: block;
+  }
+
+  /* Animasi khusus saat ditekan di mobile agar terasa tactile */
+  #jumpBtnMobile:active {
+    transform: translateY(4px) scale(0.95);
+    box-shadow:
+      0 2px 0 #cc9400,
+      0 5px 10px rgba(0, 0, 0, 0.3);
   }
 }
 
